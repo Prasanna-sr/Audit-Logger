@@ -6,9 +6,10 @@ var auditLogger = require('./../index.js');
 
 auditLogger(app, {
     responseTime: httpResponseTime(500)
-}, function loggingCallback(req, res) {
+}, function loggingCallback(req, responseArgs) {
     //log your application data here
     console.log(req.headers);
+    console.log(res);
 });
 
 app.use('/', function(req, res) {

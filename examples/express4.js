@@ -12,9 +12,9 @@ app.listen(3000);
 auditLogger(app, {
     responseTime: auditLogger.httpResponseTime(500),
     responseCode400s: auditLogger.httpResponseCode([404])
-}, function(req, res) {
+}, function(req, responseArgs) {
     //log your application data here
-    logData(req, res);
+    logData(req, responseArgs);
 });
 
 app.use(function prkApp1(req, res, next) {

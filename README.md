@@ -18,11 +18,13 @@ It is not efficient to log all parameters for all requests. This library helps y
 	$ npm install auditlogger
 
 ## How to use
-Initialize your application by requiring the module and calling the constructor with the application object. 
+Initialize auditlogger constructor
 
 	auditLogger(app, {ruleName1: function, ruleName2: function}, notifyCallback);
 
-There can be any number of rules, rule function should return either true or false. notifyCallback is a function which get called when the first rule fails.
+- Parameter 1 -  express application object.
+- Parameter 2 -  Object which contain logger rules. There can be any number of rules, rule function should return true when the rule fails. notifyCallback is a function which get called when the first rule fails.
+- Parameter 3 - function which gets called when the rules fails. Function where you would log. Function is called with express req object and response arguments.(http response code and response data)
 
 ## Usage
 
@@ -39,7 +41,7 @@ There can be any number of rules, rule function should return either true or fal
 	    console.log(req.headers);
 	});
 
-	app.use('/', function(req, res) {
+	app.use('/', function(req, responseArgs) {
 	    setTimeout(function() {
 	        res.send(200, 'ok');
 	    }, 501);
