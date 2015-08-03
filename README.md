@@ -67,6 +67,8 @@ AuditLogger automatically captures time taken for all middlewares and routes.
 	    }
 	};
 
+Examples are avaialbe [here](https://github.com/Prasanna-sr/Audit-Logger/tree/master/examples)
+
 ## Tests
 	$ npm install
 	$ npm test
