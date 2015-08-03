@@ -1,10 +1,9 @@
+//If the module return true, 
+//rule is matched and logger is turned on
 module.exports = function() {
-
     var args = Array.prototype.slice.call(arguments);
-
     return function(req, res, originalArgs) {
         var requestStatus = originalArgs[0];
-
         // No args -> do nothing, else match code or range
         return (!args.length || args.some(function(range) {
             // One array member means exact status to match
@@ -15,5 +14,4 @@ module.exports = function() {
             }
         }));
     }
-
 };

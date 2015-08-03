@@ -2,11 +2,11 @@ var expressSendMethods = ['send', 'json', 'jsonp', 'redirect', 'sendStatus', 're
 var httpResponseTime = require('./rules/httpResponseTime');
 var httpResponseCode = require('./rules/httpResponseCode');
 
-module.exports = instrument;
-instrument.httpResponseTime = httpResponseTime;
-instrument.httpResponseCode = httpResponseCode;
+module.exports = auditLogger;
+auditLogger.httpResponseTime = httpResponseTime;
+auditLogger.httpResponseCode = httpResponseCode;
 
-function instrument(app, rulesObj, notifyCallback) {
+function auditLogger(app, rulesObj, notifyCallback) {
 
     app.use(function(req, res, next) {
         req.timers = function() {};

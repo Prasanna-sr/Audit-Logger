@@ -1,6 +1,6 @@
 {
-    "name": "instrumentation",
-    "version": "0.0.4",
+    "name": "AuditLogger",
+    "version": "0.1.0",
     "description": "",
     "main": "index.js",
     "scripts": {
@@ -10,7 +10,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git://github.com/Prasanna-sr/instrumentation.git"
+        "url": "git://github.com/Prasanna-sr/Audit-Logger"
     },
     "keywords": ["production", "monitoring", "instrumentation", "logging"],
     "dependencies": {},

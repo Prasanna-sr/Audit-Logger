@@ -2,40 +2,59 @@
 var express = require('express');
 var app = express();
 var router = express.Router();
+var auditLogger = require('./../index.js');
+//server runs at port 3000
+app.listen(3000);
 
-var instrumentation = require('./../index.js');
-
-
-instrumentation(app, {
-    responseTime: instrumentation.httpResponseTime(500),
-    treeId: ruleTreeId,
-    responseCode400s: instrumentation.httpResponseCode([404])
+//Initiate the logger
+// logger is passed two rules, responseTime and responseCode400s,
+// the logger is turned on (or logs) only when one of the rules fails
+auditLogger(app, {
+    responseTime: auditLogger.httpResponseTime(500),
+    responseCode400s: auditLogger.httpResponseCode([404])
 }, function(req, res) {
-    //log data here
+    //log your application data here
     logData(req, res);
 });
 
+app.use(function prkApp1(req, res, next) {
+    next();
+});
 
-function ruleTreeId(req, res) {
-    var params = req.url.split('?');
-    var flag = 0;
-    // console.log(params);
-    params.forEach(function(item) {
-        if (item.indexOf('=') !== -1) {
-            var query = item.split('=');
-            if (query[0].indexOf('treeid') !== -1) {
-                if (Number(query[1]) < 1) {
-                    flag = 1;
-                }
-            }
-        }
+app.use(function prkApp2(req, res, next) {
+    setTimeout(function() {
+        middlewarePrivateFunction(req);
+        next();
+    }, 111);
 
-    });
-    if (flag === 1) {
-        return true;
-    }
+});
+app.use(router);
 
-    //return true;
+router.use(function prkRouterMiddelware1(req, res, next) {
+    //timeout to make the route longer than 500 milliseconds
+    setTimeout(function() {
+        next();
+    }, 500);
+
+});
+
+//test route which fails 'responseTime' rule
+router.get('/test', function test(req, res, next) {
+    privateFunction(req);
+    privateFunction1(req);
+    res.status(200).send('Test Page');
+});
+
+//test route which fails 'responseCode400s' rule
+router.get('/test/httpresponse', function test(req, res, next) {
+    setTimeout(function() {
+        res.status(404).send('404 Page');
+    }, 0);
+});
+
+function middlewarePrivateFunction(req, cb) {
+    req.timers.start('mwPrivateFunction');
+    req.timers.stop();
 }
 
 function logData(req, res) {
@@ -52,87 +71,15 @@ function logData(req, res) {
 
 }
 
-app.use(function prkApp1(req, res, next) {
-    next();
-});
-
-app.use(function prkApp2(req, res, next) {
-    setTimeout(function() {
-        middlewarePrivateFunction(req);
-        next();
-    }, 111);
-
-});
-app.use(router);
-
-router.use(function prkRouter1(req, res, next) {
-    setTimeout(function() {
-        next();
-    }, 200);
-
-});
-
-
-function middlewarePrivateFunction(req, cb) {
-    req.timers.start('mdPrivateFunction');
-    req.timers.stop();
-}
-
 function privateFunction(req, cb) {
     req.timers.start('privateFunction');
     var t = new Date().getTime();
-
-    for (var i = 0; i < 10000000; i++) {
-        var a = i++;
-    }
-    req.timers.stop();
+    setTimeout(function() {
+        req.timers.stop();
+    }, 555)
 }
-
 
 function privateFunction1(req, cb) {
     req.timers.start('privateFunction1');
     req.timers.stop();
 }
-
-router.get('/test', function test(req, res, next) {
-    privateFunction(req);
-    privateFunction1(req);
-    res.status(200).send('Test Page');
-    next();
-});
-
-router.get('/test/httpResponse', function test(req, res, next) {
-    setTimeout(function() {
-        res.status(404).send('404 Page');
-        next();
-    }, 0);
-});
-
-
-//response time is avaialble in req.timers
-// app.use(function timers(req, res, next) {
-//     //Logs when any middleware or routes take more than 100 milliseconds
-//     var log = 0;
-//     req.timers.forEach(function(obj) {
-//         for (var key in obj) {
-//             if (obj[key] > 100) {
-//                 log = 1;
-//             }
-//         }
-//     });
-//     if(log) {
-//         console.log(req.timers);
-//         console.log(req.headers);
-//     }
-//     next();
-// });
-
-// app.use(function(err, req, res, next) {
-//     console.log(err);
-//     console.log(req.timers);
-//     console.log(req.headers);
-// });
-
-
-
-app.listen(3000);

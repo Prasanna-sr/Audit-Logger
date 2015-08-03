@@ -1,11 +1,11 @@
-## Instrumentation 
+## Audit Logger 
 
 
-[![Build Status](https://travis-ci.org/Prasanna-sr/instrumentation.svg?branch=master)](https://travis-ci.org/Prasanna-sr/instrumentation)
+[![Build Status](https://travis-ci.org/Prasanna-sr/Audit-Logger.svg?branch=master)](https://travis-ci.org/Prasanna-sr/Audit-Logger)
 
-[![Dependencies](https://david-dm.org/Prasanna-sr/instrumentation.svg)](https://david-dm.org/Prasanna-sr/instrumentation)
+[![Dependencies](https://david-dm.org/Prasanna-sr/Audit-Logger.svg)](https://david-dm.org/Prasanna-sr/Audit-Logger)
 
-[![Coverage Status](https://coveralls.io/repos/Prasanna-sr/instrumentation/badge.svg?branch=master)](https://coveralls.io/r/Prasanna-sr/instrumentation?branch=master)
+[![Coverage Status](https://coveralls.io/repos/Prasanna-sr/Audit-Logger/badge.svg?branch=master)](https://coveralls.io/r/Prasanna-sr/Audit-Logger?branch=master)
 
 Provides instrumentation for [express](http://expressjs.com/) or connect middleware specific node.js applications.
 It helps to capture time taken for each middleware and routes.
@@ -15,7 +15,7 @@ When running in production, you may wish you could have certain data avaialble f
 It is not efficient to log all parameters for all requests. This library helps you to create application specific rules and provides all application data only when the application fails certain rules.
 
 
-## Install [![npm version](https://badge.fury.io/js/instrumentation.svg)](http://badge.fury.io/js/instrumentation)
+## Install [![npm version](https://badge.fury.io/js/Audit-Logger.svg)](http://badge.fury.io/js/Audit-Logger)
 
 	$ npm install Instrumentation
 
