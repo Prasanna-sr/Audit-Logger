@@ -5,7 +5,8 @@
 
 [![Dependencies](https://david-dm.org/Prasanna-sr/Audit-Logger.svg)](https://david-dm.org/Prasanna-sr/Audit-Logger)
 
-[![Coverage Status](https://coveralls.io/repos/Prasanna-sr/Audit-Logger/badge.svg?branch=master)](https://coveralls.io/r/Prasanna-sr/Audit-Logger?branch=master)
+[![Coverage Status](https://coveralls.io/repos/Prasanna-sr/Audit-Logger/badge.svg?branch=master&service=github)](https://coveralls.io/github/Prasanna-sr/Audit-Logger?branch=master)
+
 
 Provides more control to your logging.
 
