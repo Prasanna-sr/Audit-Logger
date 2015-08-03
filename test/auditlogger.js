@@ -1,11 +1,13 @@
 var sinon = require('sinon');
 var assert = require('assert');
 var request = require('supertest');
-var captureTime = require('./../index');
+var auditLogger = require('./../index');
 
 var express = require('express');
 var app = express();
-captureTime(app, {}, function(){});
+auditLogger(app, {rule1: function() {
+    return true;
+}}, function(){});
 
 var router = express.Router();
 var appMiddleware = sinon.stub().callsArg(2);
@@ -23,9 +25,22 @@ var flag;
 app.use(appMiddleware);
 app.use(router);
 router.use(routerMiddleware);
+
+var spyStartTimer;
+var spyStopTimer;
+
 router.use(function(req, res, next) {
+    middlewarePrivateFunction(req, next);
     next();
 });
+function middlewarePrivateFunction(req, cb) {
+    spyStartTimer = sinon.spy(req.timers, 'start');
+    spyStopTimer = sinon.spy(req.timers, 'stop');
+    req.timers.start('mwPrivateFunction');
+    req.timers.stop();
+    cb();
+}
+
 router.get('/prkTest', appSpyRouter);
 router.get('/prkTest1', function (req, res, next) {
     flag = 1;
@@ -95,6 +110,18 @@ describe('route', function() {
     it('middleware should be called', function(done) {
         request(app).get('/test').expect(200).end(function() {
             assert.ok(routerMiddleware.called);
+            done();
+        });
+    });
+    it('start timer should be called', function(done) {
+         request(app).get('/test').expect(200).end(function() {
+            assert.ok(spyStartTimer.called);
+            done();
+        });
+    });
+    it('stop timer should be called', function(done) {
+         request(app).get('/test').expect(200).end(function() {
+            assert.ok(spyStopTimer.called);
             done();
         });
     });
