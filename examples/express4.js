@@ -18,10 +18,12 @@ auditLogger(app, {
 });
 
 app.use(function prkApp1(req, res, next) {
+    console.log('prkArrrp111');
     next();
 });
 
 app.use(function prkApp2(req, res, next) {
+    console.log('omg')
     setTimeout(function() {
         middlewarePrivateFunction(req);
         next();
@@ -40,9 +42,11 @@ router.use(function prkRouterMiddelware1(req, res, next) {
 
 //test route which fails 'responseTime' rule
 router.get('/test', function test(req, res, next) {
-    privateFunction(req);
-    privateFunction1(req);
-    res.status(200).send('Test Page');
+    privateFunction(req, function() {
+        privateFunction1(req);
+        res.status(200).send('Test Page');
+        //next();
+    });
 });
 
 //test route which fails 'responseCode400s' rule
@@ -50,11 +54,12 @@ router.get('/test/httpresponse', function test(req, res, next) {
     setTimeout(function() {
         res.status(404).send('404 Page');
     }, 0);
+    next();
 });
 
 function middlewarePrivateFunction(req, cb) {
     req.timers.start('mwPrivateFunction');
-    req.timers.stop();
+    req.timers.stop('mwPrivateFunction');
 }
 
 function logData(req, res) {
@@ -75,11 +80,12 @@ function privateFunction(req, cb) {
     req.timers.start('privateFunction');
     var t = new Date().getTime();
     setTimeout(function() {
-        req.timers.stop();
-    }, 555)
+        req.timers.stop('privateFunction');
+        cb();
+    }, 50);
 }
 
 function privateFunction1(req, cb) {
     req.timers.start('privateFunction1');
-    req.timers.stop();
+    req.timers.stop('privateFunction1');
 }

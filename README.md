@@ -31,7 +31,7 @@ Module provides httpResponseCode, and httpResponseTime rules which can be config
 AuditLogger automatically captures time taken for all middlewares and routes.
 
 - req.timer.value - gives time taken for all middleware and routes.
-- req.timer.start() and req.timer.stop() - could be used any time during the request to log private functions. 
+- req.timer.start(name) and req.timer.stop(name) - could be used any time during the request to log private functions. 
 - req.timer.value contains special '$finalTimer' key which contains total time taken for the request.
 
 
