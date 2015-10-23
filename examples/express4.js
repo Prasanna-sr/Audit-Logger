@@ -17,17 +17,16 @@ auditLogger(express, app, {
     logData(req, responseArgs);
 });
 
+
 app.use(function prkApp1(req, res, next) {
-    console.log('prkArrrp111');
     next();
 });
 
 app.use(function prkApp2(req, res, next) {
-    console.log('omg')
     setTimeout(function() {
         middlewarePrivateFunction(req);
         next();
-    }, 111);
+    }, 110);
 
 });
 app.use(router);
@@ -50,11 +49,11 @@ router.get('/test', function test(req, res, next) {
 });
 
 //test route which fails 'responseCode400s' rule
-router.get('/test/httpresponse', function test(req, res, next) {
+router.get('/test/httpresponse', function httpresponse(req, res, next) {
     setTimeout(function() {
         res.status(404).send('404 Page');
     }, 0);
-    next();
+    //next();
 });
 
 function middlewarePrivateFunction(req, cb) {

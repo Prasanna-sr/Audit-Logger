@@ -4,19 +4,33 @@ app.listen(3000);
 // var auditLogger = require('auditlogger');
 var auditLogger = require('./../index.js');
 
-auditLogger(app, {
+auditLogger(express, app, {
     responseTime: httpResponseTime(500)
 }, function loggingCallback(req, responseArgs) {
     //log your application data here
-    console.log(req.headers);
-    console.log(res);
+    // console.log(req.headers);
+    logData(req, responseArgs)
 });
 
-app.use('/', function(req, res) {
+app.get('/test', function(req, res) {
     setTimeout(function() {
         res.send(200, 'ok');
     }, 501);
 });
+
+function logData(req, res) {
+    console.log('/***********************************************************/');
+    console.log('/********************** REQUEST HEADERS *********************/');
+    console.log('/************************************************************/');
+    console.log(req.headers);
+    console.log('URL route :' + req.originalUrl);
+    console.log('\n');
+    console.log('/***************************************************************/');
+    console.log('/********************* MIDDLEWARE TIMERS ***********************/');
+    console.log('/***************************************************************/');
+    console.log(req.timers.value);
+
+}
 
 function httpResponseTime(milliseconds) {
     //req.timers.$finalTimer contains total time for the request
