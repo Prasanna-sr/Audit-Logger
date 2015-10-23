@@ -6,12 +6,12 @@ module.exports = auditLogger;
 auditLogger.httpResponseTime = httpResponseTime;
 auditLogger.httpResponseCode = httpResponseCode;
 
-function auditLogger(app, rulesObj, notifyCallback) {
+function auditLogger(express, app, rulesObj, notifyCallback) {
 
     app.use(function(req, res, next) {
         req.timers = function() {};
         req.timers.value = [];
-        var startTime = new Date().getTime();
+        req.timers.startTime = new Date().getTime();
         req.timers.start = function(name) {
             for (var i = req.timers.value.length - 1; i >= 0; i--) {
                 var tempObj = req.timers.value[i];
@@ -43,33 +43,36 @@ function auditLogger(app, rulesObj, notifyCallback) {
                 }
             }
         }
-        overrideMethods(res, expressSendMethods, responseSend);
-
-        function responseSend(responseFn) {
-            return function() {
-                var args = Array.prototype.slice.call(arguments);
-                req.timers.value.push({
-                    '$finalTimer': (new Date().getTime() - startTime)
-                });
-                var keys = Object.keys(rulesObj);
-                var shouldNotify = keys.some(function(key) {
-                    var fn = rulesObj[key];
-                    return fn(req, res, args);
-                });
-                if (shouldNotify) {
-                    notifyCallback(req, arguments);
-                }
-                responseFn.apply(this, arguments);            }
-        }
         next();
     });
 
+    overrideMethods(express.response, expressSendMethods, responseSend);
     overrideMethod(app, 'use', appMiddleware);
     overrideMethod(app, 'get', routerHttpMethods);
     overrideMethod(app, 'post', routerHttpMethods);
     overrideMethod(app, 'put', routerHttpMethods);
     overrideMethod(app, 'delete', routerHttpMethods);
 
+
+    function responseSend(responseFn) {
+        return function() {
+            var that = this;
+            var args = Array.prototype.slice.call(arguments);
+            that.req.timers.value.push({
+                '$finalTimer': (new Date().getTime() - that.req.timers.startTime)
+            });
+            var keys = Object.keys(rulesObj);
+            var shouldNotify = keys.some(function(key) {
+                var fn = rulesObj[key];
+                return fn(that.req, that, args);
+            });
+            if (shouldNotify) {
+                notifyCallback(that.req, arguments);
+            }
+            responseFn.apply(this, arguments);
+        }
+    }
+    
     function appMiddleware(appUseFn) {
         return function() {
             var appFn = arguments[0];
@@ -132,7 +135,8 @@ function auditLogger(app, rulesObj, notifyCallback) {
                     for (var $i = $obj.req.timers.value.length - 1; $i >= 0; $i--) {
                         var $key = Object.keys($obj.req.timers.value[$i])[0];
                         if ($obj.req.timers.value[$i][$key] === -1) {
-                            $obj.req.timers.value[$i][$key] = new Date().getTime() - $obj.counter;
+                            $obj.req.timers.value[$i][$key] = new Date().getTime()
+                             - $obj.counter;
                             break;
                         }
                     }

@@ -9,7 +9,7 @@ app.listen(3000);
 //Initiate the logger
 // logger is passed two rules, responseTime and responseCode400s,
 // the logger is turned on (or logs) only when one of the rules fails
-auditLogger(app, {
+auditLogger(express, app, {
     responseTime: auditLogger.httpResponseTime(500),
     responseCode400s: auditLogger.httpResponseCode([404])
 }, function(req, responseArgs) {
