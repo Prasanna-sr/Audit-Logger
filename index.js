@@ -49,7 +49,7 @@ function auditLogger(express, app, rulesObj, notifyCallback) {
         next();
     });
 
-    overrideMethods(express.response, expressSendMethods, responseSend);
+    // overrideMethods(express.response, expressSendMethods, responseSend);
     overrideMethods(express.response.status(), expressSendMethods, responseSend);
     overrideMethod(app, 'use', appMiddleware);
     overrideMethod(app, 'get', routerHttpMethods);
@@ -68,8 +68,7 @@ function auditLogger(express, app, rulesObj, notifyCallback) {
             for (var $i = that.req.timers.value.length - 1; $i >= 0; $i--) {
                 var $key = Object.keys(that.req.timers.value[$i])[0];
                 if (that.req.timers.value[$i][$key].init === -1) {
-                    that.req.timers.value[$i][$key] = new Date().getTime() 
-                        - that.req.timers.value[$i][$key]['time'];
+                    that.req.timers.value[$i][$key] = new Date().getTime() - that.req.timers.value[$i][$key]['time'];
                     break;
                 }
             }
@@ -141,7 +140,10 @@ function auditLogger(express, app, rulesObj, notifyCallback) {
                 } else {
                     $obj.name = 'anonymous';
                 }
-                $obj["timerObj"][$obj.name] = {init: -1, time: new Date().getTime()} ;
+                $obj["timerObj"][$obj.name] = {
+                    init: -1,
+                    time: new Date().getTime()
+                };
                 $obj.req.timers.value.push($obj["timerObj"]);
                 arguments[2] = function() {
                     for (var $i = $obj.req.timers.value.length - 1; $i >= 0; $i--) {
