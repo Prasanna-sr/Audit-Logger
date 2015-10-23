@@ -61,24 +61,27 @@ function auditLogger(express, app, rulesObj, notifyCallback) {
     function responseSend(responseFn) {
         return function() {
             var that = this;
-            var args = Array.prototype.slice.call(arguments);
-            that.req.timers.value.push({
-                '$finalTimer': (new Date().getTime() - that.req.timers.startTime)
-            });
-            for (var $i = that.req.timers.value.length - 1; $i >= 0; $i--) {
-                var $key = Object.keys(that.req.timers.value[$i])[0];
-                if (that.req.timers.value[$i][$key].init === -1) {
-                    that.req.timers.value[$i][$key] = new Date().getTime() - that.req.timers.value[$i][$key]['time'];
-                    break;
+            if (!that.req.timers['$finalTimer']) {
+                var args = Array.prototype.slice.call(arguments);
+                that.req.timers['$finalTimer'] = true;
+                that.req.timers.value.push({
+                    '$finalTimer': (new Date().getTime() - that.req.timers.startTime)
+                });
+                for (var $i = that.req.timers.value.length - 1; $i >= 0; $i--) {
+                    var $key = Object.keys(that.req.timers.value[$i])[0];
+                    if (that.req.timers.value[$i][$key].init === -1) {
+                        that.req.timers.value[$i][$key] = new Date().getTime() - that.req.timers.value[$i][$key]['time'];
+                        break;
+                    }
                 }
-            }
-            var keys = Object.keys(rulesObj);
-            var shouldNotify = keys.some(function(key) {
-                var fn = rulesObj[key];
-                return fn(that.req, that, args);
-            });
-            if (shouldNotify) {
-                notifyCallback(that.req, arguments);
+                var keys = Object.keys(rulesObj);
+                var shouldNotify = keys.some(function(key) {
+                    var fn = rulesObj[key];
+                    return fn(that.req, that, args);
+                });
+                if (shouldNotify) {
+                    notifyCallback(that.req, that, arguments);
+                }
             }
             responseFn.apply(this, arguments);
         }
