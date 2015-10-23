@@ -1,4 +1,7 @@
-var expressSendMethods = ['send', 'json', 'jsonp', 'redirect', 'sendStatus', 'render', 'sendfile', 'sendFile'];
+var expressSendMethods = ['send', 'json', 'jsonp', 'redirect',
+    'sendStatus', 'render', 'sendfile', 'sendFile'
+];
+
 var httpResponseTime = require('./rules/httpResponseTime');
 var httpResponseCode = require('./rules/httpResponseCode');
 
@@ -17,7 +20,7 @@ function auditLogger(express, app, rulesObj, notifyCallback) {
                 var tempObj = req.timers.value[i];
                 var key = Object.keys(tempObj)[0];
                 var value = tempObj[key];
-                if (key.indexOf('->') === -1 && value === -1) {
+                if (key.indexOf('->') === -1 && value.init === -1) {
                     key = key + ' -> ' + name;
                     var timerObj = {};
                     timerObj[key] = {};
@@ -46,7 +49,8 @@ function auditLogger(express, app, rulesObj, notifyCallback) {
         next();
     });
 
-    overrideMethods(express.response, expressSendMethods, responseSend);
+    // overrideMethods(express.response, expressSendMethods, responseSend);
+    overrideMethods(express.response.status(), ['send'], responseSend);
     overrideMethod(app, 'use', appMiddleware);
     overrideMethod(app, 'get', routerHttpMethods);
     overrideMethod(app, 'post', routerHttpMethods);
@@ -61,6 +65,14 @@ function auditLogger(express, app, rulesObj, notifyCallback) {
             that.req.timers.value.push({
                 '$finalTimer': (new Date().getTime() - that.req.timers.startTime)
             });
+            for (var $i = that.req.timers.value.length - 1; $i >= 0; $i--) {
+                var $key = Object.keys(that.req.timers.value[$i])[0];
+                if (that.req.timers.value[$i][$key].init === -1) {
+                    that.req.timers.value[$i][$key] = new Date().getTime() 
+                        - that.req.timers.value[$i][$key]['time'];
+                    break;
+                }
+            }
             var keys = Object.keys(rulesObj);
             var shouldNotify = keys.some(function(key) {
                 var fn = rulesObj[key];
@@ -72,7 +84,7 @@ function auditLogger(express, app, rulesObj, notifyCallback) {
             responseFn.apply(this, arguments);
         }
     }
-    
+
     function appMiddleware(appUseFn) {
         return function() {
             var appFn = arguments[0];
@@ -129,14 +141,13 @@ function auditLogger(express, app, rulesObj, notifyCallback) {
                 } else {
                     $obj.name = 'anonymous';
                 }
-                $obj["timerObj"][$obj.name] = -1;
+                $obj["timerObj"][$obj.name] = {init: -1, time: new Date().getTime()} ;
                 $obj.req.timers.value.push($obj["timerObj"]);
                 arguments[2] = function() {
                     for (var $i = $obj.req.timers.value.length - 1; $i >= 0; $i--) {
                         var $key = Object.keys($obj.req.timers.value[$i])[0];
-                        if ($obj.req.timers.value[$i][$key] === -1) {
-                            $obj.req.timers.value[$i][$key] = new Date().getTime()
-                             - $obj.counter;
+                        if ($obj.req.timers.value[$i][$key] && $obj.req.timers.value[$i][$key].init === -1) {
+                            $obj.req.timers.value[$i][$key] = new Date().getTime() - $obj.counter;
                             break;
                         }
                     }
