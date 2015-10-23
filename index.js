@@ -49,8 +49,8 @@ function auditLogger(express, app, rulesObj, notifyCallback) {
         next();
     });
 
-    // overrideMethods(express.response, expressSendMethods, responseSend);
-    overrideMethods(express.response.status(), ['send'], responseSend);
+    overrideMethods(express.response, expressSendMethods, responseSend);
+    overrideMethods(express.response.status(), expressSendMethods, responseSend);
     overrideMethod(app, 'use', appMiddleware);
     overrideMethod(app, 'get', routerHttpMethods);
     overrideMethod(app, 'post', routerHttpMethods);
