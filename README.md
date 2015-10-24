@@ -25,22 +25,23 @@ Initialize auditlogger constructor
 
 - Parameter 1 -  express application object.
 - Parameter 2 -  Object, to specify logger rules. There can be any number of rules, each property consist of rule name and rule function. 
-Module provides httpResponseCode, and httpResponseTime rules which can be configured. Custom rule function can be provided, rule is treated as failed when the rule function returns true.
-- Parameter 3 - function, which gets called if any of the rule fails.  Function is invoked with express req object and application response arguments.(http response code and response data)
+Module provides httpResponseCode, and httpResponseTime rules which can be configured. 
+Custom rule function can be provided, if function return true, the rule is treated as failed
+and logger is turned on.
+- Parameter 3 - callback function which gets called if any of the rule fails.  Function is invoked with express req object, res object and body passed to send.
 
 AuditLogger automatically captures time taken for all middlewares and routes.
 
-- req.timer.value - gives time taken for all middleware and routes.
-- req.timer.start(name) and req.timer.stop(name) - could be used any time during the request to log private functions. 
-- req.timer.value contains special '$finalTimer' key which contains total time taken for the request.
+- **req.timer.value** - gives time taken for all middleware and routes.
+- **req.timer.start(name)** and **req.timer.stop(name)** - could be used any time during the request to log private functions. 
+- **req.timer.value** contains special **$finalTimer** key which contains total time taken for the request.
 
+#####Note: name your middleware functions to get better timer results.
 
 ## Usage
-
 	var express = require('express');
 	var app = express();
 	app.listen(3000);
-	// var auditLogger = require('auditlogger');
 	var auditLogger = require('./../index.js');
 
 	auditLogger(app, {
@@ -48,13 +49,27 @@ AuditLogger automatically captures time taken for all middlewares and routes.
 	}, function loggingCallback(req, res) {
 	    //log your application data here
 	    console.log(req.headers);
+	    console.log(req.timers.value);
 	});
 
-	app.use('/', function(req, responseArgs) {
+	app.use(function testMiddleware(req, res, next) {
 	    setTimeout(function() {
-	        res.send(200, 'ok');
-	    }, 501);
+	        next();
+	    }, 200)
 	});
+	app.get('/', function defaultRoute(req, res) {
+	    privateFunction(req, function() {
+	        res.status(500).send('ok');
+	    });
+	});
+
+	function privateFunction(req, callback) {
+		req.timers.start('privateFunction');
+	    setTimeout(function() {
+	    	req.timers.stop('privateFunction');
+	    	callback();
+	    }, 501);
+	}
 
 	function httpResponseTime(milliseconds) {
 	    //req.timers.$finalTimer contains total time for the request
@@ -65,8 +80,15 @@ AuditLogger automatically captures time taken for all middlewares and routes.
 	            }
 	        });
 	    }
-	};
+	}
+###Output
+  *req.headers*
+     
+    { host: '127.0.0.1:3000',  'user-agent': 'curl/7.43.0',  accept: '*/*' }
 
+*req.timers.value*
+
+    [ { testMiddleware: 201 },  { defaultRoute: 506 }, { 'defaultRoute -> privateFunction': 505 }, { '$finalTimer': 708 } ]
 ## Examples
 
 Examples are avaialbe [here](https://github.com/Prasanna-sr/Audit-Logger/tree/master/examples)

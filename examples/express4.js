@@ -8,7 +8,7 @@ app.listen(3000);
 
 //Initiate the logger
 // logger is passed two rules, responseTime and responseCode400s,
-// the logger is turned on (or logs) only when one of the rules fails
+// the logger is turned on (or logs) when the first rule fails
 auditLogger(app, {
     responseTime: auditLogger.httpResponseTime(500),
     responseCode400s: auditLogger.httpResponseCode([400, 404, 500])
