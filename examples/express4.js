@@ -9,9 +9,9 @@ app.listen(3000);
 //Initiate the logger
 // logger is passed two rules, responseTime and responseCode400s,
 // the logger is turned on (or logs) only when one of the rules fails
-auditLogger(express, app, {
+auditLogger(app, {
     responseTime: auditLogger.httpResponseTime(500),
-    responseCode400s: auditLogger.httpResponseCode([404])
+    responseCode400s: auditLogger.httpResponseCode([400, 404, 500])
 }, function(req, responseArgs) {
     //log your application data here
     logData(req, responseArgs);
@@ -43,7 +43,7 @@ router.use(function prkRouterMiddelware1(req, res, next) {
 router.get('/test', function test(req, res, next) {
     privateFunction(req, function() {
         privateFunction1(req);
-        res.status(200).send('Test Page');
+        res.status(200).json('Test Page');
         //next();
     });
 });

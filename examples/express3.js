@@ -4,8 +4,9 @@ app.listen(3000);
 // var auditLogger = require('auditlogger');
 var auditLogger = require('./../index.js');
 
-auditLogger(express, app, {
-    responseTime: httpResponseTime(500)
+auditLogger(app, {
+    responseTime: httpResponseTime(5000),
+    responseCode400s: auditLogger.httpResponseCode([404])
 }, function loggingCallback(req, responseArgs) {
     //log your application data here
     // console.log(req.headers);
