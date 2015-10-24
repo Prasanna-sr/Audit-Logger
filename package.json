@@ -1,6 +1,6 @@
 {
     "name": "auditlogger",
-    "version": "1.0.0",
+    "version": "0.3.0",
     "description": "logger to control application logging",
     "main": "index.js",
     "scripts": {
