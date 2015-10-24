@@ -22,5 +22,8 @@
         "mocha-lcov-reporter": "0.0.2",
         "sinon": "^1.14.1",
         "supertest": "^1.0.1"
+    },
+    "peerDependencies": {
+        "express": "*"
     }
 }
